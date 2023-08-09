@@ -24,10 +24,13 @@ public:
 
     std::vector<point> rotatePoints(std::vector<point>& inputPoints) {
         theta = thetaDis(gen);  // 更新随机角度
-
+        vector<point> newPoints;
         for (auto& p : inputPoints) {
             p = rotatePoint(p, theta);
+            point newP = p;
+            newPoints.push_back(newP);
         }
+        return newPoints;
     }
 
     std::vector<point> reverseRotatePoints(const std::vector<point>& inputPoints) {
