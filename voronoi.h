@@ -18,38 +18,38 @@ typedef pair<double, double> point;
 #define x first
 #define y second
 
-// Arc, event, and segment datatypes
-struct arc;
-struct seg;
+// Arc, Event, and segment datatypes
+struct Arc;
+struct Seg;
 
-struct event {
+struct Event {
     double x;
     point p;
-    arc *a;
+    Arc *a;
     bool valid;
 
-    event(double xx, point pp, arc *aa)
+    Event(double xx, point pp, Arc *aa)
             : x(xx), p(pp), a(aa), valid(true) {}
 };
 
-struct arc {
+struct Arc {
     point p;
-    arc *prev, *next;
-    event *e;
+    Arc *prev, *next;
+    Event *e;
 
-    seg *s0, *s1;
+    Seg *s0, *s1;
 
-    arc(point pp, arc *a=0, arc *b=0)
+    Arc(point pp, Arc *a=0, Arc *b=0)
             : p(pp), prev(a), next(b), e(0), s0(0), s1(0) {}
 };
 
-vector<seg*> output;  // Array of output segments.
+vector<Seg*> output;  // Array of output segments.
 
-struct seg {
+struct Seg {
     point start, end;
     bool done;
 
-    seg(point p)
+    Seg(point p)
             : start(p), end(0,0), done(false)
     { output.push_back(this); }
 
@@ -57,21 +57,21 @@ struct seg {
     void finish(point p) { if (done) return; end = p; done = true; }
 };
 
-arc *root = 0; // First item in the parabolic front linked list.
+Arc *root = 0; // First item in the parabolic front linked list.
 
 
 
 // "Greater than" comparison, for reverse sorting in priority queue.
 struct gt {
     bool operator()(point a, point b) {return a.x==b.x ? a.y>b.y : a.x>b.x;}
-    bool operator()(event *a, event *b) {return a->x>b->x;}
+    bool operator()(Event *a, Event *b) {return a->x > b->x;}
 };
 
 // Bounding box coordinates.
 double X0 = 0, X1 = 0, Y0 = 0, Y1 = 0;
 
 priority_queue<point,  vector<point>,  gt> points; // site events
-priority_queue<event*, vector<event*>, gt> events; // circle events
+priority_queue<Event*, vector<Event*>, gt> events; // circle events
 
 point intersection(point p0, point p1, double l)
 {
@@ -101,7 +101,7 @@ point intersection(point p0, point p1, double l)
     return res;
 }
 
-bool intersect(point p, arc *i, point *res)
+bool intersect(point p, Arc *i, point *res)
 {
     if (i->p.x == p.x) return false;
 
@@ -148,10 +148,10 @@ bool circle(point a, point b, point c, double *x, point *o)
     return true;
 }
 
-// Look for a new circle event for arc i.
-void check_circle_event(arc *i, double x0)
+// Look for a new circle Event for Arc i.
+void check_circle_event(Arc *i, double x0)
 {
-    // Invalidate any old event.
+    // Invalidate any old Event.
     if (i->e && i->e->x != x0)
         i->e->valid = false;
     i->e = NULL;
@@ -163,8 +163,8 @@ void check_circle_event(arc *i, double x0)
     point o;
 
     if (circle(i->prev->p, i->p, i->next->p, &x,&o) && x > x0) {
-        // Create new event.
-        i->e = new event(x, o, i);
+        // Create new Event.
+        i->e = new Event(x, o, i);
         events.push(i->e);
     }
 }
@@ -172,33 +172,33 @@ void check_circle_event(arc *i, double x0)
 void front_insert(point p)
 {
     if (!root) {
-        root = new arc(p);
+        root = new Arc(p);
         return;
     }
 
-    // Find the current arc(s) at height p.y (if there are any).
-    for (arc *i = root; i; i = i->next) {
+    // Find the current Arc(s) at height p.y (if there are any).
+    for (Arc *i = root; i; i = i->next) {
         point z, zz;
         if (intersect(p,i,&z)) {
-            // New parabola intersects arc i.  If necessary, duplicate i.
+            // New parabola intersects Arc i.  If necessary, duplicate i.
             if (i->next && !intersect(p,i->next, &zz)) {
-                i->next->prev = new arc(i->p,i,i->next);
+                i->next->prev = new Arc(i->p, i, i->next);
                 i->next = i->next->prev;
             }
-            else i->next = new arc(i->p,i);
+            else i->next = new Arc(i->p, i);
             i->next->s1 = i->s1;
 
             // Add p between i and i->next.
-            i->next->prev = new arc(p,i,i->next);
+            i->next->prev = new Arc(p, i, i->next);
             i->next = i->next->prev;
 
-            i = i->next; // Now i points to the new arc.
+            i = i->next; // Now i points to the new Arc.
 
             // Add new half-edges connected to i's endpoints.
-            i->prev->s1 = i->s0 = new seg(z);
-            i->next->s0 = i->s1 = new seg(z);
+            i->prev->s1 = i->s0 = new Seg(z);
+            i->next->s0 = i->s1 = new Seg(z);
 
-            // Check for new circle events around the new arc:
+            // Check for new circle events around the new Arc:
             check_circle_event(i, p.x);
             check_circle_event(i->prev, p.x);
             check_circle_event(i->next, p.x);
@@ -207,30 +207,30 @@ void front_insert(point p)
         }
     }
 
-    // Special case: If p never intersects an arc, append it to the list.
-    arc *i;
+    // Special case: If p never intersects an Arc, append it to the list.
+    Arc *i;
     for (i = root; i->next; i=i->next) ; // Find the last node.
 
-    i->next = new arc(p,i);
+    i->next = new Arc(p, i);
     // Insert segment between p and i
     point start;
     start.x = X0;
     start.y = (i->next->p.y + i->p.y) / 2;
-    i->s1 = i->next->s0 = new seg(start);
+    i->s1 = i->next->s0 = new Seg(start);
 }
 
 void process_event()
 {
-    // Get the next event from the queue.
-    event *e = events.top();
+    // Get the next Event from the queue.
+    Event *e = events.top();
     events.pop();
 
     if (e->valid) {
         // Start a new edge.
-        seg *s = new seg(e->p);
+        Seg *s = new Seg(e->p);
 
-        // Remove the associated arc from the front.
-        arc *a = e->a;
+        // Remove the associated Arc from the front.
+        Arc *a = e->a;
         if (a->prev) {
             a->prev->next = a->next;
             a->prev->s1 = s;
@@ -257,7 +257,7 @@ void process_point()
     point p = points.top();
     points.pop();
 
-    // Add a new arc to the parabolic front.
+    // Add a new Arc to the parabolic front.
     front_insert(p);
 }
 
@@ -267,7 +267,7 @@ void finish_edges()
     double l = X1 + (X1-X0) + (Y1-Y0);
 
     // Extend each remaining segment to the new parabola intersections.
-    for (arc *i = root; i->next; i = i->next)
+    for (Arc *i = root; i->next; i = i->next)
         if (i->s1)
             i->s1->finish(intersection(i->p, i->next->p, l*2));
 }
@@ -278,7 +278,7 @@ void print_output()
     cout << X0 << " "<< X1 << " " << Y0 << " " << Y1 << endl;
 
     // Each output segment in four-column format.
-    vector<seg*>::iterator i;
+    vector<Seg*>::iterator i;
     for (i = output.begin(); i != output.end(); i++) {
         point p0 = (*i)->start;
         point p1 = (*i)->end;
