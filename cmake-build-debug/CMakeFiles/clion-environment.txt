@@ -1,4 +1,4 @@
-ToolSet: w64 11.0 (local)@E:\MyTool\JetBrains\CLion\bin\mingw
+ToolSet: w64 11.0 (local)@E:\MyTool\jetbrains\tools\CLion\bin\mingw
 Options: 
 
-Options:-DCMAKE_MAKE_PROGRAM=E:/MyTool/JetBrains/CLion/bin/ninja/win/x64/ninja.exe
+Options:

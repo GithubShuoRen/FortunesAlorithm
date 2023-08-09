@@ -9,72 +9,91 @@
 #include <iostream>
 #include <queue>
 #include <set>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
-// Notation for working with points
-typedef pair<double, double> point;
+typedef std::pair<double, double> point;
+
+
+class Voronoi {
+private:
+    // Notation for working with points
+
 #define x first
 #define y second
 
-// Arc, Event, and segment datatypes
-struct Arc;
-struct Seg;
+    struct Arc;
+    struct Seg;
 
-struct Event {
-    double x;
-    point p;
-    Arc *a;
-    bool valid;
+    struct Event {
+        double x;
+        point p;
+        Arc *a;
+        bool valid;
 
-    Event(double xx, point pp, Arc *aa)
-            : x(xx), p(pp), a(aa), valid(true) {}
+        Event(double xx, point pp, Arc *aa) : x(xx), p(pp), a(aa), valid(true) {}
+    };
+
+    struct Arc {
+        point p;
+        Arc *prev, *next;
+        Event *e;
+
+        Seg *s0, *s1;
+
+        Arc(point pp, Arc *a = 0, Arc *b = 0)
+                : p(pp), prev(a), next(b), e(0), s0(0), s1(0) {}
+    };
+
+    static vector<Seg*> output;  // Array of output segments.
+
+    struct Seg {
+        point start, end;
+        bool done;
+
+        Seg(point p) : start(p), end(0, 0), done(false) {
+            output.push_back(this);
+        }
+
+        // Set the end point and mark as "done."
+        void finish(point p) {
+            if (done) return;
+            end = p;
+            done = true;
+        }
+    };
+
+    Arc *root = nullptr; // First item in the parabolic front linked list.
+
+    // "Greater than" comparison, for reverse sorting in priority queue.
+    struct gt {
+        bool operator()(point a, point b) { return a.x == b.x ? a.y > b.y : a.x > b.x; }
+        bool operator()(Event *a, Event *b) { return a->x > b->x; }
+    };
+
+    // Bounding box coordinates.
+    double X0 = 0, X1 = 0, Y0 = 0, Y1 = 0;
+
+    priority_queue<point, vector<point>, gt> points; // site events
+    priority_queue<Event*, vector<Event*>, gt> events; // circle events
+
+    point intersection(point p0, point p1, double l);
+    bool intersect(point p, Arc *i, point *res);
+    bool circle(point a, point b, point c, double *x, point *o);
+    void check_circle_event(Arc *i, double x0);
+    void front_insert(point p);
+    void process_event();
+    void process_point();
+    void finish_edges();
+    void print_output();
+
+public:
+    Voronoi() = default;
+    void run();
 };
 
-struct Arc {
-    point p;
-    Arc *prev, *next;
-    Event *e;
-
-    Seg *s0, *s1;
-
-    Arc(point pp, Arc *a=0, Arc *b=0)
-            : p(pp), prev(a), next(b), e(0), s0(0), s1(0) {}
-};
-
-vector<Seg*> output;  // Array of output segments.
-
-struct Seg {
-    point start, end;
-    bool done;
-
-    Seg(point p)
-            : start(p), end(0,0), done(false)
-    { output.push_back(this); }
-
-    // Set the end point and mark as "done."
-    void finish(point p) { if (done) return; end = p; done = true; }
-};
-
-Arc *root = 0; // First item in the parabolic front linked list.
-
-
-
-// "Greater than" comparison, for reverse sorting in priority queue.
-struct gt {
-    bool operator()(point a, point b) {return a.x==b.x ? a.y>b.y : a.x>b.x;}
-    bool operator()(Event *a, Event *b) {return a->x > b->x;}
-};
-
-// Bounding box coordinates.
-double X0 = 0, X1 = 0, Y0 = 0, Y1 = 0;
-
-priority_queue<point,  vector<point>,  gt> points; // site events
-priority_queue<Event*, vector<Event*>, gt> events; // circle events
-
-point intersection(point p0, point p1, double l)
-{
+point Voronoi::intersection(point p0, point p1, double l) {
     point res, p = p0;
 
     if (p0.x == p1.x)
@@ -101,8 +120,7 @@ point intersection(point p0, point p1, double l)
     return res;
 }
 
-bool intersect(point p, Arc *i, point *res)
-{
+bool Voronoi::intersect(point p, Arc *i, point *res) {
     if (i->p.x == p.x) return false;
 
     double a,b;
@@ -123,9 +141,7 @@ bool intersect(point p, Arc *i, point *res)
     return false;
 }
 
-// Find the rightmost point on the circle through a,b,c.
-bool circle(point a, point b, point c, double *x, point *o)
-{
+bool Voronoi::circle(point a, point b, point c, double *x, point *o) {
     // Check that bc is a "right turn" from ab.
     if ((b.x-a.x)*(c.y-a.y) - (c.x-a.x)*(b.y-a.y) > 0)
         return false;
@@ -148,9 +164,7 @@ bool circle(point a, point b, point c, double *x, point *o)
     return true;
 }
 
-// Look for a new circle Event for Arc i.
-void check_circle_event(Arc *i, double x0)
-{
+void Voronoi::check_circle_event(Arc *i, double x0) {
     // Invalidate any old Event.
     if (i->e && i->e->x != x0)
         i->e->valid = false;
@@ -169,8 +183,7 @@ void check_circle_event(Arc *i, double x0)
     }
 }
 
-void front_insert(point p)
-{
+void Voronoi::front_insert(point p) {
     if (!root) {
         root = new Arc(p);
         return;
@@ -219,8 +232,7 @@ void front_insert(point p)
     i->s1 = i->next->s0 = new Seg(start);
 }
 
-void process_event()
-{
+void Voronoi::process_event() {
     // Get the next Event from the queue.
     Event *e = events.top();
     events.pop();
@@ -251,8 +263,7 @@ void process_event()
     delete e;
 }
 
-void process_point()
-{
+void Voronoi::process_point() {
     // Get the next point from the queue.
     point p = points.top();
     points.pop();
@@ -261,8 +272,7 @@ void process_point()
     front_insert(p);
 }
 
-void finish_edges()
-{
+void Voronoi::finish_edges() {
     // Advance the sweep line so no parabolas can cross the bounding box.
     double l = X1 + (X1-X0) + (Y1-Y0);
 
@@ -272,8 +282,7 @@ void finish_edges()
             i->s1->finish(intersection(i->p, i->next->p, l*2));
 }
 
-void print_output()
-{
+void Voronoi::print_output() {
     // Bounding box coordinates.
     cout << X0 << " "<< X1 << " " << Y0 << " " << Y1 << endl;
 
@@ -286,36 +295,32 @@ void print_output()
     }
 }
 
-int main()
-{
-    // Read points from input.
+void Voronoi::run() {
     point p;
     while (cin >> p.x >> p.y) {
         points.push(p);
-
-        // Keep track of bounding box size.
         if (p.x < X0) X0 = p.x;
         if (p.y < Y0) Y0 = p.y;
         if (p.x > X1) X1 = p.x;
         if (p.y > Y1) Y1 = p.y;
     }
-    // Add margins to the bounding box.
-    double dx = (X1-X0+1)/5.0, dy = (Y1-Y0+1)/5.0;
+    double dx = (X1 - X0 + 1) / 5.0, dy = (Y1 - Y0 + 1) / 5.0;
     X0 -= dx;  X1 += dx;  Y0 -= dy;  Y1 += dy;
 
-    // Process the queues; select the top element with smaller x coordinate.
-    while (!points.empty())
-        if (!events.empty() && events.top()->x <= points.top().x)
+    while (!points.empty()) {
+        if (!events.empty() && events.top()->x <= points.top().x) {
             process_event();
-        else
+        } else {
             process_point();
+        }
+    }
 
-    // After all points are processed, do the remaining circle events.
-    while (!events.empty())
+    while (!events.empty()) {
         process_event();
+    }
 
-    finish_edges(); // Clean up dangling edges.
-    print_output(); // Output the voronoi diagram.
+    finish_edges();
+    print_output();
 }
 
 

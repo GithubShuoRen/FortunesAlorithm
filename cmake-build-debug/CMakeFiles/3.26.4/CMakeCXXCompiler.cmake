@@ -1,4 +1,4 @@
-set(CMAKE_CXX_COMPILER "E:/MyTool/JetBrains/CLion/bin/mingw/bin/g++.exe")
+set(CMAKE_CXX_COMPILER "E:/MyTool/jetbrains/tools/CLion/bin/mingw/bin/g++.exe")
 set(CMAKE_CXX_COMPILER_ARG1 "")
 set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_CXX_COMPILER_VERSION "13.1.0")
@@ -22,11 +22,11 @@ set(CMAKE_CXX_SIMULATE_VERSION "")
 
 
 
-set(CMAKE_AR "E:/MyTool/JetBrains/CLion/bin/mingw/bin/ar.exe")
-set(CMAKE_CXX_COMPILER_AR "E:/MyTool/JetBrains/CLion/bin/mingw/bin/gcc-ar.exe")
-set(CMAKE_RANLIB "E:/MyTool/JetBrains/CLion/bin/mingw/bin/ranlib.exe")
-set(CMAKE_CXX_COMPILER_RANLIB "E:/MyTool/JetBrains/CLion/bin/mingw/bin/gcc-ranlib.exe")
-set(CMAKE_LINKER "E:/MyTool/JetBrains/CLion/bin/mingw/bin/ld.exe")
+set(CMAKE_AR "E:/MyTool/jetbrains/tools/CLion/bin/mingw/bin/ar.exe")
+set(CMAKE_CXX_COMPILER_AR "E:/MyTool/jetbrains/tools/CLion/bin/mingw/bin/gcc-ar.exe")
+set(CMAKE_RANLIB "E:/MyTool/jetbrains/tools/CLion/bin/mingw/bin/ranlib.exe")
+set(CMAKE_CXX_COMPILER_RANLIB "E:/MyTool/jetbrains/tools/CLion/bin/mingw/bin/gcc-ranlib.exe")
+set(CMAKE_LINKER "E:/MyTool/jetbrains/tools/CLion/bin/mingw/bin/ld.exe")
 set(CMAKE_MT "")
 set(CMAKE_COMPILER_IS_GNUCXX 1)
 set(CMAKE_CXX_COMPILER_LOADED 1)
@@ -77,7 +77,7 @@ endif()
 
 
 
-set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++;E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32;E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward;E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include;E:/MyTool/JetBrains/CLion/bin/mingw/include;E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed;E:/MyTool/JetBrains/CLion/bin/mingw/x86_64-w64-mingw32/include")
+set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++;E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32;E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward;E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include;E:/MyTool/jetbrains/tools/CLion/bin/mingw/include;E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed;E:/MyTool/jetbrains/tools/CLion/bin/mingw/x86_64-w64-mingw32/include")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "stdc++;mingw32;gcc_s;gcc;moldname;mingwex;kernel32;pthread;advapi32;shell32;user32;kernel32;iconv;mingw32;gcc_s;gcc;moldname;mingwex;kernel32")
-set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0;E:/MyTool/JetBrains/CLion/bin/mingw/lib/gcc;E:/MyTool/JetBrains/CLion/bin/mingw/x86_64-w64-mingw32/lib;E:/MyTool/JetBrains/CLion/bin/mingw/lib")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0;E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib/gcc;E:/MyTool/jetbrains/tools/CLion/bin/mingw/x86_64-w64-mingw32/lib;E:/MyTool/jetbrains/tools/CLion/bin/mingw/lib")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")
