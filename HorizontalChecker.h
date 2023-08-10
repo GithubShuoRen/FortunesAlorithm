@@ -11,9 +11,28 @@
 #include <unordered_set>
 #include <stdexcept>
 
+
+
+
 class HorizontalChecker {
 private:
     static const int maxNum = 300;
+
+    static constexpr inline int sig_eps16(double x) {
+        return x < -1e-16 ? -1 : x > 1e-16;
+    }
+
+    static bool hasSameX(std::unordered_set<double>& xCoordinates, double x) {
+        for (const double& xCoord : xCoordinates) {
+            if (sig_eps16(std::abs(xCoord - x)) == 0) {
+                return true;
+            }
+        }
+        xCoordinates.insert(x);
+        return false;
+    }
+
+
 public:
     typedef std::pair<double, double> Point;
 
@@ -32,11 +51,13 @@ public:
         std::unordered_set<double> xCoordinates;
 
         for (const auto& point : points) {
-            if (!xCoordinates.insert(point.first).second) {
+            double x = point.first;
+            if (hasSameX(xCoordinates, x)) {
                 return false; // Found a duplicate x-coordinate
             }
         }
         return true; // All points have distinct x-coordinates
+
     }
 };
 
