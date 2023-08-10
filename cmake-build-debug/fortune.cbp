@@ -91,9 +91,6 @@
 		<Unit filename="D:/JHL/FortunesAlorithm/main.cpp">
 			<Option target="fortune"/>
 		</Unit>
-		<Unit filename="D:/JHL/FortunesAlorithm/voronoi.h">
-			<Option target="fortune"/>
-		</Unit>
 		<Unit filename="D:/JHL/FortunesAlorithm/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

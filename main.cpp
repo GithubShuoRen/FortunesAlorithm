@@ -1,8 +1,10 @@
-#include "voronoi.h"
+#include <queue>
+#include <iostream>
 #include "Rotator.h"
 #include "PointGenerator.h"
 
 
+typedef std::pair<double, double> point;
 
 // Notation for working with points
 
@@ -32,7 +34,7 @@ struct Arc {
             : p(pp), prev(a), next(b), e(nullptr), s0(nullptr), s1(nullptr) {}
 };
 
-static vector<Seg*> output;  // Array of output segments.
+static std::vector<Seg*> output;  // Array of output segments.
 
 struct Seg {
     point start, end;
@@ -61,8 +63,8 @@ struct gt {
 // Bounding box coordinates.
 double X0 = 0, X1 = 0, Y0 = 0, Y1 = 0;
 
-priority_queue<point, vector<point>, gt> points; // site events
-priority_queue<Event*, vector<Event*>, gt> events; // circle events
+std::priority_queue<point, std::vector<point>, gt> points; // site events
+std::priority_queue<Event*, std::vector<Event*>, gt> events; // circle events
 
 static point intersection(point p0, point p1, double l) {
     point res, p = p0;
@@ -257,14 +259,14 @@ void finish_edges() {
 
 void print_output() {
     // Bounding box coordinates.
-    cout << X0 << " "<< X1 << " " << Y0 << " " << Y1 << endl;
+    std::cout << X0 << " "<< X1 << " " << Y0 << " " << Y1 << std::endl;
 
     // Each output segment in four-column format.
-    vector<Seg*>::iterator i;
+    std::vector<Seg*>::iterator i;
     for (i = output.begin(); i != output.end(); i++) {
         point p0 = (*i)->start;
         point p1 = (*i)->end;
-        cout << p0.x << " " << p0.y << " " << p1.x << " " << p1.y << endl;
+        std::cout << p0.x << " " << p0.y << " " << p1.x << " " << p1.y << std::endl;
     }
 }
 
@@ -282,6 +284,7 @@ int main()
 
 
     /* fortune's algorithm begins */
+
     for (point p: targetPoints) {
         point curPoint = p;
         points.push(curPoint);

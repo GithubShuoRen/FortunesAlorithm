@@ -8,6 +8,9 @@
 
 #include <chrono>
 #include <random>
+#include <vector>
+
+using namespace std;
 
 class Rotator {
 public:
