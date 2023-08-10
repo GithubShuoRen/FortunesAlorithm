@@ -14,7 +14,7 @@ using namespace std;
 
 class Rotator {
 public:
-    typedef std::pair<double, double> point;
+    typedef std::pair<double, double> Point;
 
     Rotator() {
         // 使用当前时间作为种子
@@ -25,20 +25,20 @@ public:
     }
 
 
-    std::vector<point> rotatePoints(std::vector<point>& inputPoints) {
+    std::vector<Point> rotatePoints(std::vector<Point>& inputPoints) {
         theta = thetaDis(gen);  // 更新随机角度
-        vector<point> newPoints;
+        vector<Point> newPoints;
         for (auto& p : inputPoints) {
             p = rotatePoint(p, theta);
-            point newP = p;
+            Point newP = p;
             newPoints.push_back(newP);
         }
         return newPoints;
     }
 
-    std::vector<point> reverseRotatePoints(const std::vector<point>& inputPoints) {
+    std::vector<Point> reverseRotatePoints(const std::vector<Point>& inputPoints) {
         double reverse_theta = -theta;
-        std::vector<point> reversedPoints;
+        std::vector<Point> reversedPoints;
 
         for (const auto& p : inputPoints) {
             reversedPoints.push_back(rotatePoint(p, reverse_theta));
@@ -53,7 +53,7 @@ private:
     std::uniform_real_distribution<> thetaDis;
     double theta;
 
-    point rotatePoint(const point& p, double angle) {
+    Point rotatePoint(const Point& p, double angle) {
         double cosA = std::cos(angle);
         double sinA = std::sin(angle);
         double x = cosA * p.first - sinA * p.second;

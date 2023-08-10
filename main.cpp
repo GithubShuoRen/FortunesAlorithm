@@ -2,9 +2,12 @@
 #include <iostream>
 #include "Rotator.h"
 #include "PointGenerator.h"
+#include "HorizontalChecker.h"
 
 
-typedef std::pair<double, double> point;
+typedef std::pair<double, double> Point;
+
+
 
 // Notation for working with points
 
@@ -16,36 +19,36 @@ struct Seg;
 
 struct Event {
     double x;
-    point p;
+    Point p;
     Arc *a;
     bool valid;
 
-    Event(double xx, point pp, Arc *aa) : x(xx), p(pp), a(aa), valid(true) {}
+    Event(double xx, Point pp, Arc *aa) : x(xx), p(pp), a(aa), valid(true) {}
 };
 
 struct Arc {
-    point p;
+    Point p;
     Arc *prev, *next;
     Event *e;
 
     Seg *s0, *s1;
 
-    explicit Arc(point pp, Arc *a = nullptr, Arc *b = nullptr)
+    explicit Arc(Point pp, Arc *a = nullptr, Arc *b = nullptr)
             : p(pp), prev(a), next(b), e(nullptr), s0(nullptr), s1(nullptr) {}
 };
 
 static std::vector<Seg*> output;  // Array of output segments.
 
 struct Seg {
-    point start, end;
+    Point start, end;
     bool done;
 
-    Seg(point p) : start(p), end(0, 0), done(false) {
+    Seg(Point p) : start(p), end(0, 0), done(false) {
         output.push_back(this);
     }
 
-    // Set the end point and mark as "done."
-    void finish(point p) {
+    // Set the end Point and mark as "done."
+    void finish(Point p) {
         if (done) return;
         end = p;
         done = true;
@@ -56,18 +59,18 @@ Arc *root = nullptr; // First item in the parabolic front linked list.
 
 // "Greater than" comparison, for reverse sorting in priority queue.
 struct gt {
-    bool operator()(point a, point b) { return a.x == b.x ? a.y > b.y : a.x > b.x; }
+    bool operator()(Point a, Point b) { return a.x == b.x ? a.y > b.y : a.x > b.x; }
     bool operator()(Event *a, Event *b) { return a->x > b->x; }
 };
 
 // Bounding box coordinates.
 double X0 = 0, X1 = 0, Y0 = 0, Y1 = 0;
 
-std::priority_queue<point, std::vector<point>, gt> points; // site events
+std::priority_queue<Point, std::vector<Point>, gt> points; // site events
 std::priority_queue<Event*, std::vector<Event*>, gt> events; // circle events
 
-static point intersection(point p0, point p1, double l) {
-    point res, p = p0;
+static Point intersection(Point p0, Point p1, double l) {
+    Point res, p = p0;
 
     if (p0.x == p1.x)
         res.y = (p0.y + p1.y) / 2;
@@ -93,7 +96,7 @@ static point intersection(point p0, point p1, double l) {
     return res;
 }
 
-bool intersect(point p, Arc *i, point *res) {
+bool intersect(Point p, Arc *i, Point *res) {
     if (i->p.x == p.x) return false;
 
     double a,b;
@@ -114,7 +117,7 @@ bool intersect(point p, Arc *i, point *res) {
     return false;
 }
 
-bool circle(point a, point b, point c, double *x, point *o) {
+bool circle(Point a, Point b, Point c, double *x, Point *o) {
     // Check that bc is a "right turn" from ab.
     if ((b.x-a.x)*(c.y-a.y) - (c.x-a.x)*(b.y-a.y) > 0)
         return false;
@@ -147,7 +150,7 @@ void check_circle_event(Arc *i, double x0) {
         return;
 
     double x;
-    point o;
+    Point o;
 
     if (circle(i->prev->p, i->p, i->next->p, &x,&o) && x > x0) {
         // Create new Event.
@@ -156,7 +159,7 @@ void check_circle_event(Arc *i, double x0) {
     }
 }
 
-void front_insert(point p) {
+void front_insert(Point p) {
     if (!root) {
         root = new Arc(p);
         return;
@@ -164,7 +167,7 @@ void front_insert(point p) {
 
     // Find the current Arc(s) at height p.y (if there are any).
     for (Arc *i = root; i; i = i->next) {
-        point z, zz;
+        Point z, zz;
         if (intersect(p,i,&z)) {
             // New parabola intersects Arc i.  If necessary, duplicate i.
             if (i->next && !intersect(p,i->next, &zz)) {
@@ -199,7 +202,7 @@ void front_insert(point p) {
 
     i->next = new Arc(p, i);
     // Insert segment between p and i
-    point start;
+    Point start;
     start.x = X0;
     start.y = (i->next->p.y + i->p.y) / 2;
     i->s1 = i->next->s0 = new Seg(start);
@@ -237,8 +240,8 @@ void process_event() {
 }
 
 void process_point() {
-    // Get the next point from the queue.
-    point p = points.top();
+    // Get the next Point from the queue.
+    Point p = points.top();
     points.pop();
 
     // Add a new Arc to the parabolic front.
@@ -264,8 +267,8 @@ void print_output() {
     // Each output segment in four-column format.
     std::vector<Seg*>::iterator i;
     for (i = output.begin(); i != output.end(); i++) {
-        point p0 = (*i)->start;
-        point p1 = (*i)->end;
+        Point p0 = (*i)->start;
+        Point p1 = (*i)->end;
         std::cout << p0.x << " " << p0.y << " " << p1.x << " " << p1.y << std::endl;
     }
 }
@@ -277,16 +280,47 @@ int main()
 {
     auto* pointGenerator = new PointGenerator();
 
-    std::vector<point> originalPoints = pointGenerator->generatePoints(250, 0, 300, 0, 300);
+    std::vector<Point> originalPoints = pointGenerator->generatePoints(250, 0, 300, 0, 300);
     auto * rotator = new Rotator();
-    std::vector<point> targetPoints = rotator->rotatePoints(originalPoints);
+    std::vector<Point> targetPoints = rotator->rotatePoints(originalPoints);
+
+
+    // check if there exist some points sharing the xCoordinate
+    try {
+        bool result = HorizontalChecker::check(targetPoints);
+
+        while (!result) {
+            // Found a duplicate x-coordinate
+            std::cout << "Some points share the same x-coordinate." << std::endl;
+
+            // Clear the vector to release memory
+            // No need to manually deallocate memory for targetPoints, since it's a vector of pairs
+            /* for (const auto& point : targetPoints) { delete[] point;} */
+            targetPoints.clear();
+
+
+            // Rotate the original points again
+            targetPoints = rotator->rotatePoints(originalPoints);
+
+            // Re-check for duplicate x-coordinates
+            result = HorizontalChecker::check(targetPoints);
+        }
+
+        std::cout << "All points have distinct x-coordinates." << std::endl;
+
+    } catch (const std::length_error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Maximum number of points exceeded." << std::endl;
+    }
+
+
 
 
 
     /* fortune's algorithm begins */
 
-    for (point p: targetPoints) {
-        point curPoint = p;
+    for (Point p: targetPoints) {
+        Point curPoint = p;
         points.push(curPoint);
         if (p.x < X0) X0 = p.x;
         if (p.y < Y0) Y0 = p.y;
@@ -295,7 +329,7 @@ int main()
     }
 
     /*
-    point p;
+    Point p;
     while (cin >> p.x >> p.y) {
         points.push(p);
         if (p.x < X0) X0 = p.x;

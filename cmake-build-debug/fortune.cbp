@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="D:/JHL/FortunesAlorithm/HorizontalChecker.h">
+			<Option target="fortune"/>
+		</Unit>
 		<Unit filename="D:/JHL/FortunesAlorithm/PointGenerator.h">
 			<Option target="fortune"/>
 		</Unit>
